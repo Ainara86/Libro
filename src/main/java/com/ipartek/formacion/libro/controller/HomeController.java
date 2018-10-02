@@ -29,108 +29,75 @@ import com.ipartek.formacion.libro.pojo.Usuario;
  */
 @WebServlet("/inicio")
 public class HomeController extends HttpServlet {
-private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-private static LibroArrayListDAO dao;
-private ArrayList<Libro> libro;	
-private Libro libroInicio;
+	private static LibroArrayListDAO dao;
+	private static int PAGINA_ACTUAL = 0;
+	private static int PAGINA_TOTAL = 0;
+	/**
+	 * @see Servlet#init(ServletConfig)
+	 */
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
 
-
-@Override
-public void init(ServletConfig config) throws ServletException {	
-	super.init(config);
-	//Se ejecuta solo con la 1º petición, el resto de peticiones iran a "service"
-	dao = LibroArrayListDAO.getInstance();
-}
-
-
-@Override
-public void destroy() {	
-	super.destroy();
-	//se ejecuta al parar el servidor
-	dao = null;
-}
-
-
-/**
- * Cada request se ejecuta en un hilo o thread
- */
-@Override
-protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-	
-	HttpSession session = request.getSession();
-	
-	super.service(request, response);  //llama a los metodos GET o POST
-			
-	//despues de realizar GET o POST
-	request.setAttribute("libro", libro);
-	request.getRequestDispatcher("home.jsp").forward(request, response);
-	
-}
-
-
-/**
- * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
- *      response)
- */
-protected void doGet(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
-	doProcess(request, response);
-	
-}
-
-private void doProcess(HttpServletRequest request, HttpServletResponse response) {
-try {
-		
-		//parametros
-		String id = request.getParameter("id");
-		
-		//listado 			
-		libro = (ArrayList<Libro>) dao.getAll();
-		
-		
-		//libro de inicio
-			/*libroInicio = new Libro();
-			for(int i=0;i<libro.size();i++) {
-				libro = (ArrayList<Libro>) dao.getAll();;
-			}*/
-		//request.setAttribute("libro", dao.getAll());
-
-	} catch (Exception e) {
-		e.printStackTrace();
-	} finally {
+		dao = LibroArrayListDAO.getInstance();
 		
 	}
-	
-}
 
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
-/**
- * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
- *      response)
- */
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
-	/*try {
-		
-		//recoger parametros
-		String id = request.getParameter("id");
-		String nombre = request.getParameter("nombre");
-		
-		//insertar
-		libroInicio = new Libro(id, 0, nombre, nombre);
-		dao.insert(libroInicio);
-		
-		//pedir listado			
-		libro = (ArrayList<Libro>) dao.getAll();
-		
+		PAGINA_TOTAL = dao.total();
+		Libro p = new Libro();
+		String alert = "";
 
-	} catch (Exception e) {
-		e.printStackTrace();
-	} finally {
+		try {
+			
+			int nPagina = (request.getParameter("nPagina") != null ? Integer.parseInt(request.getParameter("nPagina"))
+					: PAGINA_ACTUAL);
+			p = dao.paginaXPos(nPagina);
+			request.setAttribute("pagina", p);			
+			if (nPagina>=0) {
+				if (nPagina==(PAGINA_ACTUAL-1)) {
+					PAGINA_ACTUAL--;
+				}else if (nPagina==(PAGINA_ACTUAL+1)) {
+					PAGINA_ACTUAL++;
+				}else {
+					PAGINA_ACTUAL = nPagina;
+				}
+			}else {
+				alert = "La pagina a la que intentas acceder no existe.";
+				request.setAttribute("alert", alert);
+			}
+			
+		} catch (IndexOutOfBoundsException e) {
+			alert = "La pagina a la que intentas acceder no existe.";
+			request.setAttribute("alert", alert);
+			p = dao.paginaXPos(PAGINA_ACTUAL);
+			request.setAttribute("pagina", p);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		request.setAttribute("pActual", PAGINA_ACTUAL);
+		request.setAttribute("pTotal", PAGINA_TOTAL);
 		
-	}*/
-}
+		request.setAttribute("paginas", dao.getAll());
+		request.getRequestDispatcher("index.jsp").forward(request, response);
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
 
 }

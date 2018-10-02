@@ -7,6 +7,8 @@
 		<%@ include file="includes/navbar.jsp" %>
 
         <main role="main" class="container">
+        	
+        	<%@ include file="includes/alert.jsp"  %>
 
             <div class="row justify-content-center">
                 <h1 class="col col-md-6"><i class="fas fa-user"></i> Login</h1>
@@ -23,8 +25,8 @@
                     <div class="col col-md-6">
                         
                         <div class="form-group">
-                            <label for="usuario" class="required">Email</label>
-                            <input name="usuario" type="text" class="form-control" id="usuario" autofocus required placeholder="Ej: paco" />
+                            <label for="usuarioNombre" class="required">Email</label>
+                            <input name="usuarioNombre" type="text" class="form-control" id="usuarioNombre" autofocus required placeholder="Ej: paco" />
                         </div>
                                     
                         <div class="form-group">

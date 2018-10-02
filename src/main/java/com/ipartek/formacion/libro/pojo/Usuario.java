@@ -2,20 +2,33 @@ package com.ipartek.formacion.libro.pojo;
 
 public class Usuario {
 	
+	private int id;
 	private String nombre;
 	private String pass;
 	
 	public Usuario() {
 		super();
+		this.id=-1;
 		this.nombre = "";
 		this.pass = "";
 	}
 
 		
-	public Usuario(String nombre, String pass) {
+	public Usuario(int id, String nombre, String pass) {
 		this();
+		this.id=id;
 		this.nombre = nombre;
 		this.pass = pass;
+	}
+
+
+	public int getId() {
+		return id;
+	}
+
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 
